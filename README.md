@@ -1,41 +1,128 @@
-# tax-test
-A simple application to manage user profiles and track their engagements/activities in tax-related projects.
+# Tax Test Application
 
-## Running the Application
+A NestJS application for managing user profiles and tracking their activities in tax-related projects.
 
-In order to run the application locally, please follow the following instructions:
+## Getting Started
 
-1. `git clone` the repository
-2. cd into the tax-coding-test repository
-3. run `npm install`
-4. run `npm start` to launch the web app
-5. run `npm run test:all` to run unit and e2e tests
+### Prerequisites
+- Node.js (v16 or higher)
+- npm
 
-# Needs Analysis & Assumptions:
+### Installation & Setup
 
-I first interpreted the three main objectives as:
-    1. Create Users which have a one to many relationship with activities
-    2. Allow CRUD on users and activities
-    3. Filter on activities
-    4. Have CRUD operations persist
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd tax-test
+   ```
 
-So many assumptions were made. Here are a few:
-- data attributed to users and activities like email, data, name
-- dates attributed to activities were selecteable and not always last updated/created
-- dates could be selected in the future
-- not allowing the deletion of a user unless their activities have been deleted
-- allowing an activity to be updated to a new user
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
+3. Start the development server:
+   ```bash
+   npm run start:dev
+   ```
 
-# What needs improvement:
+4. Access the UI:
+   - Open your browser to `http://localhost:3000/index.html`
 
+### Running Tests
 
-# Technologies:
-For the backend I decided to go with NestJS as I have previous experience (though a few years old) and it is recommended for quick projects. Similarily SQLite with TypeORM was chosen for ease of implementation. Even data as simple as users[]->activities[] is already lending itself to SQL over JSON. 
+```bash
+# Run all tests (unit + e2e)
+npm run test:all
 
+# Run unit tests only
+npm test
 
-# Steps
+# Run e2e tests only
+npm run test:e2e
 
-Started by asking ChatGPT how it would solve this.
-Decided on NestJS since I have prior experience but wanted a refresher.
-Started with updating packages, installing nestjs.
+# Run tests in watch mode
+npm run test:watch
+```
+
+## Architecture & Design Decisions
+
+### Core Requirements Interpretation
+
+The application addresses three primary objectives:
+
+1. **User Management**: CRUD operations for user profiles
+2. **Activity Tracking**: CRUD operations for user activities with a one-to-many relationship
+3. **Activity Filtering**: Filter activities by user, type, and date
+4. **Data Persistence**: SQLite database with TypeORM
+
+### Data Model
+
+The application uses a straightforward relational model:
+- **Users** have a one-to-many relationship with **Activities**
+- Both entities are uniquely identified by auto-generated IDs
+- Activities support four types: `meeting_participation`, `document_submission`, `login`, `logout`
+
+### Key Assumptions
+
+- **User Data**: emails and names are required but not validated, emails are not unique
+- **Activity Dates**: User-selectable (including future dates), not automatically set to current timestamp
+- **Security**: No authentication/authorization implemented (development/demo environment)
+- **Data Integrity**: Users cannot be deleted if they have associated activities
+- **Activity Transfers**: Activities can be reassigned to different users
+- **Filtering**: Activities can only be filtered by type, user, and date
+- **Deployment**: Application runs locally; no cloud hosting configured
+
+### Technology Stack
+
+**Backend:**
+- **NestJS**: Chosen for rapid development, built-in testing support, and TypeScript integration
+- **SQLite + TypeORM**: Lightweight database solution ideal for development and testing
+- **Jest**: Comprehensive unit and e2e test coverage
+
+**Frontend:**
+- **Vanilla JavaScript/HTML/CSS**: Minimal UI focused on functionality over aesthetics
+- **Inline Editing**: Edit operations occur directly within the view section for improved UX
+
+**Testing:**
+- **Unit Tests**: Mock-based testing for services and controllers
+- **E2E Tests**: Full integration tests with isolated test database (`test.sqlite`)
+
+## User Interface
+
+The UI is deliberately simple and functional:
+
+- **Users Section**: Create new users; inline editing and deletion of existing users
+- **Activities Section**: Create new activities
+- **View Activities Section**: Filter, view, edit (inline), and delete activities
+
+All CRUD operations update immediately without page refresh. The focus is on usability rather than visual design.
+
+## Known Limitations & Future Improvements
+
+### Frontend Enhancements
+- Add authentication and authorization
+- Implement client-side validation for forms
+- Add undo/redo functionality
+- Improve delete confirmation UX (move from browser alerts to custom modals)
+- Modernize UI with a component framework (React/Vue/Angular)
+- Add loading states during async operations
+- Implement better error handling and user feedback
+
+### Backend Improvements
+- Validate and clarify business requirements
+- Enhance error handling with custom exception filters
+- Add comprehensive logging
+- Implement activity type-specific attributes and validation
+- Add audit trails for tracking changes
+- Deploy to cloud infrastructure (AWS/Azure/GCP)
+- Add API documentation (Swagger/OpenAPI)
+
+### Database
+- Consider separate tables for different activity types if requirements expand
+- Add db security and authorization
+- Add backups and logging
+
+## Use of AI Tools
+
+This project utilized AI assistance strategically to accelerate development, particularly for test generation and UI implementation. While I have professional experience with the entire technology stack (NestJS, TypeORM, Jest, TypeScript), AI is very adept at handling basic CRUD applications. The core architecture, business logic, and design decisions were independently developed. In a complex production environment, I would not normally code with this much use of AI code generation.
