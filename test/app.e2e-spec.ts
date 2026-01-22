@@ -130,6 +130,12 @@ describe('Application (e2e)', () => {
       testUserId = response.body.id;
     });
 
+    afterAll(async () => {
+      // Clean up the test user
+      await request(app.getHttpServer())
+        .delete(`/users/${testUserId}`);
+    });
+
     it('/activities (POST) - create activity', () => {
       return request(app.getHttpServer())
         .post('/activities')

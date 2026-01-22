@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>CRUD Manager</title>
+    <title>Tax Coding Test</title>
     <style>
         * {
             margin: 0;
@@ -73,7 +73,7 @@
             padding: 10px;
             margin: 10px 0;
             border-radius: 5px;
-            display: none;
+            visibility: hidden;
         }
 
         .success {
@@ -154,7 +154,7 @@
 
     <script>
         const API = 'http://localhost:3000';
-        const msg = (t, c) => { const m = document.getElementById('msg'); m.textContent = t; m.className = 'msg ' + c; m.style.display = 'block'; setTimeout(() => m.style.display = 'none', 3000); };
+        const msg = (t, c) => { const m = document.getElementById('msg'); m.textContent = t; m.className = 'msg ' + c; m.style.visibility = 'visible'; setTimeout(() => m.style.visibility = 'hidden', 3000); };
 
         const loadUsers = async () => {
             const r = await fetch(`${API}/users`);

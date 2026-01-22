@@ -13,7 +13,7 @@ A NestJS application for managing user profiles and tracking their activities in
 1. Clone the repository:
    ```bash
    git clone <repository-url>
-   cd tax-test
+   cd tax-coding-test
    ```
 
 2. Install dependencies:
@@ -40,9 +40,6 @@ npm test
 
 # Run e2e tests only
 npm run test:e2e
-
-# Run tests in watch mode
-npm run test:watch
 ```
 
 ## Architecture & Design Decisions
@@ -66,6 +63,8 @@ The application uses a straightforward relational model:
 ### Key Assumptions
 
 - **User Data**: emails and names are required but not validated, emails are not unique
+- **Small Scale**: users and activities at a large scale would require pagination/lazyloading, indexed databases, etc
+- **Activity Types Not Actioned**: Documents aren't actually submitted, logins and logouts aren't actually performed, just tracked
 - **Activity Dates**: User-selectable (including future dates), not automatically set to current timestamp
 - **Security**: No authentication/authorization implemented (development/demo environment)
 - **Data Integrity**: Users cannot be deleted if they have associated activities
@@ -125,4 +124,4 @@ All CRUD operations update immediately without page refresh. The focus is on usa
 
 ## Use of AI Tools
 
-This project utilized AI assistance strategically to accelerate development, particularly for test generation and UI implementation. While I have professional experience with the entire technology stack (NestJS, TypeORM, Jest, TypeScript), AI is very adept at handling basic CRUD applications. The core architecture, business logic, and design decisions were independently developed. In a complex production environment, I would not normally code with this much use of AI code generation.
+This project used AI to accelerate development, particularly for tests and UI. While I have professional experience with the entire technology stack (NestJS, TypeORM, Jest, TypeScript), AI is very adept at handling basic CRUD applications. The core architecture, business logic, and design decisions were independently developed. In a complex production environment, I would not normally code with this much use of AI code generation.
