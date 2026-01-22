@@ -9,7 +9,7 @@ import { AppService } from './app.service';
   imports: [
     TypeOrmModule.forRoot({
       type: 'sqlite',
-      database: 'database.sqlite',
+      database: process.env.NODE_ENV === 'test' ? 'test.sqlite' : 'database.sqlite',
       autoLoadEntities: true,
       synchronize: true,
     }),
@@ -19,4 +19,4 @@ import { AppService } from './app.service';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
