@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>CRUD Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        input,
+        select,
+        button {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .item {
+            background: #f8f8f8;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 3px solid #007bff;
+        }
+
+        .btn-sm {
+            width: auto;
+            padding: 5px 10px;
+            margin: 0 5px;
+            font-size: 12px;
+        }
+
+        .btn-edit {
+            background: #28a745;
+        }
+
+        .btn-del {
+            background: #dc3545;
+        }
+
+        .msg {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="msg" class="msg"></div>
+
+    <div class="grid">
+        <div class="card">
+            <h2>Users</h2>
+            <form id="userForm">
+                <input type="text" id="uname" placeholder="Name" required>
+                <input type="email" id="uemail" placeholder="Email" required>
+                <button type="submit">Create</button>
+            </form>
+            <div id="users"></div>
+        </div>
+
+        <div class="card">
+            <h2>Activities</h2>
+            <form id="actForm">
+                <select id="auser" required>
+                    <option value="">Select User</option>
+                </select>
+                <select id="atype" required>
+                    <option value="">Type</option>
+                    <option value="meeting_participation">Meeting</option>
+                    <option value="document_submission">Document</option>
+                    <option value="login">Login</option>
+                    <option value="logout">Logout</option>
+                </select>
+                <input type="datetime-local" id="adate" required>
+                <input type="text" id="adata" placeholder="Data" required>
+                <button type="submit">Create</button>
+            </form>
+        </div>
+
+        <div class="card full-width">
+            <h2>View Activities</h2>
+            <div class="filter-grid">
+                <select id="fuser">
+                    <option value="">All Users</option>
+                </select>
+                <select id="ftype">
+                    <option value="">All Types</option>
+                    <option value="meeting_participation">Meeting</option>
+                    <option value="document_submission">Document</option>
+                    <option value="login">Login</option>
+                    <option value="logout">Logout</option>
+                </select>
+                <input type="date" id="fdate" placeholder="Date">
+                <button onclick="filterActs()">Filter</button>
+            </div>
+            <div id="activities"></div>
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://localhost:3000';
+        const msg = (t, c) => { const m = document.getElementById('msg'); m.textContent = t; m.className = 'msg ' + c; m.style.display = 'block'; setTimeout(() => m.style.display = 'none', 3000); };
+
+        const loadUsers = async () => {
+            const r = await fetch(`${API}/users`);
+            const users = await r.json();
+            document.getElementById('users').innerHTML = users.map(u => `
+                <div class="item" id="user-${u.id}">
+                    <div id="view-user-${u.id}">
+                        <b>${u.name}</b> - ${u.email}<br>
+                        <button class="btn-sm btn-edit" onclick="editU(${u.id})">Edit</button>
+                        <button class="btn-sm btn-del" onclick="delU(${u.id})">Del</button>
+                    </div>
+                    <div id="edit-user-${u.id}" style="display:none;">
+                        <input type="text" id="edit-name-${u.id}" placeholder="Name" style="margin:5px 0;">
+                        <input type="email" id="edit-email-${u.id}" placeholder="Email" style="margin:5px 0;">
+                        <button class="btn-sm" style="background:#28a745;width:auto;" onclick="saveU(${u.id})">Save</button>
+                        <button class="btn-sm" style="background:#6c757d;width:auto;" onclick="cancelEditU(${u.id})">Cancel</button>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('auser').innerHTML = '<option value="">Select User</option>' + users.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+            document.getElementById('fuser').innerHTML = '<option value="">All Users</option>' + users.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+        };
+
+        const filterActs = async () => {
+            const userId = document.getElementById('fuser').value;
+            const type = document.getElementById('ftype').value;
+            const date = document.getElementById('fdate').value;
+
+            let url = `${API}/activities?`;
+            if (userId) url += `userId=${userId}&`;
+            if (type) url += `type=${type}&`;
+
+            const r = await fetch(url);
+            let acts = await r.json();
+
+            if (date) {
+                const filterDate = new Date(date).toDateString();
+                acts = acts.filter(a => new Date(a.date).toDateString() === filterDate);
+            }
+
+            document.getElementById('activities').innerHTML = acts.length ? acts.map(a => `
+                <div class="item" id="act-${a.id}">
+                    <div id="view-${a.id}">
+                        <b>${a.type}</b><br>
+                        User: ${a.user.name}<br>
+                        Date: ${new Date(a.date).toLocaleString()}<br>
+                        Data: ${a.data}<br>
+                        <button class="btn-sm btn-edit" onclick="editA(${a.id})">Edit</button>
+                        <button class="btn-sm btn-del" onclick="delA(${a.id})">Del</button>
+                    </div>
+                    <div id="edit-${a.id}" style="display:none;">
+                        <select id="edit-user-${a.id}" style="margin:5px 0;">
+                            ${document.getElementById('auser').innerHTML}
+                        </select>
+                        <select id="edit-type-${a.id}" style="margin:5px 0;">
+                            <option value="meeting_participation">Meeting</option>
+                            <option value="document_submission">Document</option>
+                            <option value="login">Login</option>
+                            <option value="logout">Logout</option>
+                        </select>
+                        <input type="datetime-local" id="edit-date-${a.id}" style="margin:5px 0;">
+                        <input type="text" id="edit-data-${a.id}" placeholder="Data" style="margin:5px 0;">
+                        <button class="btn-sm" style="background:#28a745;width:auto;" onclick="saveA(${a.id})">Save</button>
+                        <button class="btn-sm" style="background:#6c757d;width:auto;" onclick="cancelEditA(${a.id})">Cancel</button>
+                    </div>
+                </div>
+            `).join('') : '<p>No activities found</p>';
+        };
+
+        document.getElementById('userForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const d = { name: document.getElementById('uname').value, email: document.getElementById('uemail').value };
+            await fetch(`${API}/users`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(d) });
+            msg('Created', 'success');
+            document.getElementById('userForm').reset();
+            loadUsers();
+        };
+
+        document.getElementById('actForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const d = { userId: +document.getElementById('auser').value, type: document.getElementById('atype').value, date: new Date(document.getElementById('adate').value).toISOString(), data: document.getElementById('adata').value };
+            await fetch(`${API}/activities`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(d) });
+            msg('Created', 'success');
+            document.getElementById('actForm').reset();
+        };
+
+        const editU = async (id) => {
+            const r = await fetch(`${API}/users/${id}`);
+            const u = await r.json();
+
+            document.getElementById(`view-user-${id}`).style.display = 'none';
+            document.getElementById(`edit-user-${id}`).style.display = 'block';
+
+            document.getElementById(`edit-name-${id}`).value = u.name;
+            document.getElementById(`edit-email-${id}`).value = u.email;
+        };
+
+        const saveU = async (id) => {
+            const d = {
+                name: document.getElementById(`edit-name-${id}`).value,
+                email: document.getElementById(`edit-email-${id}`).value
+            };
+            await fetch(`${API}/users/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(d) });
+            msg('Updated', 'success');
+            loadUsers();
+        };
+
+        const cancelEditU = (id) => {
+            document.getElementById(`view-user-${id}`).style.display = 'block';
+            document.getElementById(`edit-user-${id}`).style.display = 'none';
+        };
+
+        const editA = async (id) => {
+            const r = await fetch(`${API}/activities/${id}`);
+            const a = await r.json();
+
+            document.getElementById(`view-${id}`).style.display = 'none';
+            document.getElementById(`edit-${id}`).style.display = 'block';
+
+            document.getElementById(`edit-user-${id}`).value = a.user.id;
+            document.getElementById(`edit-type-${id}`).value = a.type;
+            document.getElementById(`edit-date-${id}`).value = new Date(a.date).toISOString().slice(0, 16);
+            document.getElementById(`edit-data-${id}`).value = a.data;
+        };
+
+        const saveA = async (id) => {
+            const d = {
+                userId: +document.getElementById(`edit-user-${id}`).value,
+                type: document.getElementById(`edit-type-${id}`).value,
+                date: new Date(document.getElementById(`edit-date-${id}`).value).toISOString(),
+                data: document.getElementById(`edit-data-${id}`).value
+            };
+            await fetch(`${API}/activities/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(d) });
+            msg('Updated', 'success');
+            filterActs();
+        };
+
+        const cancelEditA = (id) => {
+            document.getElementById(`view-${id}`).style.display = 'block';
+            document.getElementById(`edit-${id}`).style.display = 'none';
+        };
+
+        const delU = async (id) => {
+            if (confirm('Delete user?')) {
+                await fetch(`${API}/users/${id}`, { method: 'DELETE' });
+                msg('Deleted', 'success');
+                loadUsers();
+                filterActs();
+            }
+        };
+
+        const delA = async (id) => {
+            if (confirm('Delete activity?')) {
+                await fetch(`${API}/activities/${id}`, { method: 'DELETE' });
+                msg('Deleted', 'success');
+                filterActs();
+            }
+        };
+
+        loadUsers();
+    </script>
+</body>
+
+</html>

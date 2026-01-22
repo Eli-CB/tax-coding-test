@@ -7,10 +7,10 @@ export class Activity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  type: ActivityType;
+  @Column({ type: 'text' })
+  type: string;
 
-  @Column({ default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ type: 'text', default: () => 'CURRENT_TIMESTAMP' })
   date: Date;
 
   @Column({ type: 'text' })

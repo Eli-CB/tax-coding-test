@@ -29,7 +29,8 @@ export class UsersService {
   async update(id: number, dto: UpdateUserDto) {
     const user = await this.findOne(id);
     Object.assign(user, dto);
-    return this.usersRepo.save(user);
+    const saved = await this.usersRepo.save(user);
+    return this.findOne(saved.id);
   }
 
   async remove(id: number) {
