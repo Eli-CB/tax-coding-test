@@ -124,4 +124,4 @@ All CRUD operations update immediately without page refresh. The focus is on usa
 
 ## Use of AI Tools
 
-This project used AI to accelerate development, particularly for tests and UI. While I have professional experience with the entire technology stack (NestJS, TypeORM, Jest, TypeScript), AI is very adept at handling basic CRUD applications. The core architecture, business logic, and design decisions were independently developed. In a complex production environment, I would not normally code with this much use of AI code generation.
+This project used AI to accelerate development, particularly for tests and UI. I have professional experience with the entire technology stack (NestJS, TypeORM, Jest, TypeScript) and AI is very adept at handling basic CRUD application questions. The core architecture, business logic, and design decisions were independently developed. In a complex production environment, I would not normally code with this much use of AI code generation.
